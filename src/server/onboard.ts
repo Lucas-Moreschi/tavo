@@ -19,8 +19,8 @@ const schema = z.object({
     .max(60),
   plan: z.string().trim().min(1).max(60),
   serviceRateBps: z.number().int().min(0).max(10000),
-  reservationMinutes: z.number().int().min(15).max(480),
-  deliveryFeeCents: z.number().int().min(0).max(1000000),
+  reservationMinutes: z.number().int().min(15).max(480).default(90),
+  deliveryFeeCents: z.number().int().min(0).max(1000000).default(0),
 });
 export function restaurantCookie(restaurantId: string) {
   return `tavo-restaurant=${encodeURIComponent(restaurantId)}; Path=/; HttpOnly; SameSite=Lax${new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000").protocol === "https:" ? "; Secure" : ""}; Max-Age=43200`;
@@ -29,7 +29,7 @@ export async function onboardRestaurant(headers: Headers, input: unknown): Promi
   const parsed = schema.safeParse(input);
   if (!parsed.success)
     throw new AppError(
-      "Confira os dados do restaurante e defina taxa, duração da reserva e entrega. A senha precisa de 8 caracteres.",
+      "Confira os dados do restaurante e a taxa de serviço. A senha precisa ter pelo menos 8 caracteres.",
     );
   const data = parsed.data;
   const logged = await getAuth().api.getSession({ headers });

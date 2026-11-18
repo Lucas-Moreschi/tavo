@@ -142,6 +142,10 @@
   .header-actions {
     gap: 16px;
   }
+  .header-help {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
   .cash-status {
     font-size: var(--text-xs);
     padding: 8px 12px;
@@ -1848,11 +1852,11 @@
     margin-left: 16px;
     font-weight: 400;
   }
-  .setup-checklist > p {
-    padding: 0 20px 12px;
-  }
   .setup-steps {
     padding: 0 20px 14px;
+  }
+  .operation-guide .setup-checklist {
+    margin: 0 20px 20px;
   }
   .setup-step {
     display: flex;

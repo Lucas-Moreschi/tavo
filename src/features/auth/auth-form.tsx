@@ -4,7 +4,6 @@ import { Brand } from "@/shared/ui/brand";
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { centsInput } from "@/shared/lib/format";
 
 export function AuthForm({ signup = false }: { signup?: boolean }) {
   const [busy, setBusy] = useState(false);
@@ -28,8 +27,6 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
           slug: str("slug"),
           plan: str("plan"),
           serviceRateBps: Math.round(Number(str("serviceRate")) * 100),
-          reservationMinutes: Number(str("reservationMinutes")),
-          deliveryFeeCents: centsInput(str("deliveryFee")),
         }
       : { email: str("email"), password: str("password") };
     setBusy(true);
@@ -176,39 +173,19 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   </select>
                   <small>A seleção do plano não gera cobrança.</small>
                 </label>
-                <div className="form-grid">
-                  <label className="field">
-                    <span>Taxa de serviço (%)</span>
-                    <input
-                      name="serviceRate"
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      required
-                      placeholder="Ex.: 10"
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Duração da reserva (min)</span>
-                    <input
-                      name="reservationMinutes"
-                      type="number"
-                      min="15"
-                      required
-                      placeholder="Ex.: 120"
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Taxa de delivery (R$)</span>
-                    <input
-                      name="deliveryFee"
-                      required
-                      inputMode="decimal"
-                      placeholder="Ex.: 5,00"
-                    />
-                  </label>
-                </div>
+                <label className="field">
+                  <span>Taxa de serviço (%)</span>
+                  <input
+                    name="serviceRate"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    required
+                    placeholder="Ex.: 10"
+                  />
+                  <small>Informe 0 para desativar a taxa de serviço.</small>
+                </label>
               </>
             )}
             {error && (

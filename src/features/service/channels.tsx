@@ -27,7 +27,7 @@ export function ChannelsView(props: ViewProps) {
         field("customerName", "Cliente"),
         field("phone", "Telefone", "text", false),
         field("address", "Endereço (delivery)", "textarea", false),
-        field("deliveryFee", "Taxa de entrega (R$)"),
+        field("deliveryFee", "Taxa de entrega (R$, só para delivery)"),
         field("label", "Identificação", "text", false),
       ],
       initial: {

@@ -7,7 +7,7 @@ export function SetupChecklist({
   props,
   expanded = false,
 }: {
-  props: ViewProps;
+  props: Pick<ViewProps, "state" | "navigate">;
   expanded?: boolean;
 }) {
   const { state } = props;
@@ -27,38 +27,45 @@ export function SetupChecklist({
   const steps = [
     {
       title: "Organize as mesas",
-      detail: "Cadastre os números, setores e a capacidade do salão.",
+      detail: "Use Cadastrar mesa para informar número, setor e capacidade.",
+      action: "Configurar mesas",
       view: "mesas",
       done: state.tables.some((table) => table.active),
     },
     {
+      title: "Confira o estoque inicial",
+      detail: "Cadastre os ingredientes em Novo item e registre a primeira entrada de cada um.",
+      action: "Configurar estoque",
+      view: "estoque",
+      done: recipeIds.size
+        ? [...recipeIds].every((id) =>
+            state.stockItems.some(
+              (item) => item.id === id && item.active && item.quantityMilli > 0,
+            ),
+          )
+        : products.length > 0 ||
+          state.stockItems.some((item) => item.active && item.quantityMilli > 0),
+    },
+    {
       title: "Monte o cardápio e as receitas",
-      detail: "Cadastre categorias, produtos, adicionais e ingredientes de cada receita.",
+      detail:
+        "Use Categoria e depois Adicionar produto para escolher a estação e os ingredientes da receita.",
+      action: "Configurar cardápio",
       view: "cardapio",
       done: products.length > 0,
     },
     {
-      title: "Confira o estoque inicial",
-      detail: "Registre entradas para os ingredientes e produtos usados no cardápio.",
-      view: "estoque",
-      done:
-        products.length > 0 &&
-        (recipeIds.size === 0 ||
-          [...recipeIds].every((id) =>
-            state.stockItems.some(
-              (item) => item.id === id && item.active && item.quantityMilli > 0,
-            ),
-          )),
-    },
-    {
       title: "Prepare os acessos da equipe",
-      detail: "Adicione as pessoas e defina quem atende, produz e recebe.",
+      detail:
+        "Use Nova pessoa para cadastrar alguém e escolher sua função. O gestor também pode operar.",
+      action: "Configurar equipe",
       view: "equipe",
       done: state.team.filter((member) => member.active).length > 1,
     },
     {
       title: "Abra o primeiro caixa",
-      detail: "Informe o fundo em dinheiro para registrar os recebimentos.",
+      detail: "Clique em Abrir caixa e informe quanto dinheiro tem na gaveta no início do turno.",
+      action: "Preparar caixa",
       view: "caixa",
       done: state.cashSessions.length > 0,
     },
@@ -75,10 +82,6 @@ export function SetupChecklist({
           {completed} de {steps.length} etapas concluídas
         </small>
       </summary>
-      <p className="muted">
-        Siga os atalhos para começar. A conferência acompanha os cadastros; você pode operar com o
-        gestor enquanto prepara a equipe.
-      </p>
       <div className="setup-steps">
         {steps.map((step, index) => (
           <div className={`setup-step ${step.done ? "setup-complete" : ""}`} key={step.view}>
@@ -92,7 +95,7 @@ export function SetupChecklist({
               <p>{step.detail}</p>
             </div>
             <button className="text-button" onClick={() => props.navigate(step.view)}>
-              {step.done ? "Revisar" : "Configurar"}
+              {step.action}
               <ArrowUpRight size={15} />
             </button>
           </div>

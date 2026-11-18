@@ -350,6 +350,43 @@ test("todas as áreas carregam, papéis são respeitados e arquivos ficam privad
   expect(errors).toEqual([]);
 });
 
+test("cadastro simplificado e guia acessível em qualquer tela por função", async ({
+  page,
+  accounts,
+}) => {
+  await page.goto("/cadastro");
+  await expect(page.getByLabel("Taxa de serviço (%)")).toBeVisible();
+  await expect(page.locator('[name="reservationMinutes"], [name="deliveryFee"]')).toHaveCount(0);
+
+  await accounts.create(page.request);
+  const kitchen = await accounts.addStaff(page.request, "cozinha");
+  await page.goto("/?view=cardapio");
+  const help = page.getByRole("button", { name: "Ajuda", exact: true });
+  const guide = page.getByRole("dialog", { name: "Guia de operação" });
+  await help.click();
+  await expect(guide.getByText("Prepare seu restaurante")).toBeVisible();
+  await expect(guide.getByRole("button", { name: "Ir para caixa" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(guide).not.toBeVisible();
+  await expect(page.getByRole("heading", { name: "Seu cardápio" })).toBeVisible();
+  await help.click();
+  await guide.getByRole("button", { name: "Ir para configurações" }).click();
+  await expect(page).toHaveURL(/\?view=configuracoes$/);
+  await expect(guide).not.toBeVisible();
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  await loginStaff(page.request, kitchen);
+  await page.goto("/");
+  await help.click();
+  await expect(guide.getByRole("button", { name: "Ver produção" })).toBeVisible();
+  await expect(guide.getByRole("button", { name: "Ir para caixa" })).toHaveCount(0);
+  await expect(guide.getByText("Prepare seu restaurante")).toHaveCount(0);
+  await guide.getByRole("button", { name: "Ver produção" }).click();
+  await expect(page).toHaveURL(/\?view=producao$/);
+  await expect(page.getByRole("heading", { name: "Cozinha e bar" })).toBeVisible();
+  await expect(guide).not.toBeVisible();
+});
+
 test("PWA de produção registra service worker, manifesto e fallback offline", async ({
   page,
   context,

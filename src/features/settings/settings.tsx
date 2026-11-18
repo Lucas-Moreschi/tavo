@@ -94,17 +94,20 @@ export function SettingsView(props: ViewProps) {
                   name="reservationMinutes"
                   type="number"
                   min="15"
+                  max="480"
                   required
                   defaultValue={restaurant.reservationMinutes}
                 />
+                <small>O início e o fim podem ser ajustados em cada reserva.</small>
               </label>
               <label className="field">
-                <span>Taxa de delivery (R$)</span>
+                <span>Taxa padrão de entrega (R$)</span>
                 <input
                   name="deliveryFee"
                   required
                   defaultValue={(restaurant.deliveryFeeCents / 100).toFixed(2)}
                 />
+                <small>O valor pode ser ajustado para cada pedido de delivery.</small>
               </label>
             </div>
             <button className="btn btn-primary" disabled={props.disabled} type="submit">

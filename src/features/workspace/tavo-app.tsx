@@ -11,6 +11,7 @@ import {
   ChefHat,
   ChevronDown,
   ChevronRight,
+  CircleHelp,
   ClipboardList,
   LayoutDashboard,
   LoaderCircle,
@@ -31,6 +32,7 @@ import { FormModal } from "@/shared/ui/dialog";
 import { useOperation } from "@/shared/hooks/use-operation";
 import { roleNames } from "@/shared/lib/operation-utils";
 import { Overview } from "@/features/workspace/overview";
+import { OperationGuide } from "@/features/workspace/operation-guide";
 import { TablesView } from "@/features/service/tables";
 import { TabsView } from "@/features/service/tabs";
 import { CatalogView } from "@/features/catalog/catalog";
@@ -83,6 +85,7 @@ export function TavoApp() {
   const [view, setView] = useState("inicio");
   const [visitId, setVisitId] = useState<string | null>(null);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -282,6 +285,14 @@ export function TavoApp() {
               {currentCash ? "Caixa aberto" : "Caixa fechado"}
             </span>
             <button
+              className="btn btn-secondary btn-small header-help"
+              aria-haspopup="dialog"
+              onClick={() => setGuideOpen(true)}
+            >
+              <CircleHelp size={16} aria-hidden />
+              Ajuda
+            </button>
+            <button
               className="icon-btn notification-button"
               title="Pedidos prontos e chamados"
               aria-label={`${notificationCount} avisos. Abrir central de chamados`}
@@ -379,6 +390,9 @@ export function TavoApp() {
             <X size={16} />
           </button>
         </div>
+      )}
+      {guideOpen && (
+        <OperationGuide state={snapshot} navigate={navigate} onClose={() => setGuideOpen(false)} />
       )}
       {editor && <FormModal {...editor} onSubmit={editor.submit} onClose={() => setEditor(null)} />}
     </div>

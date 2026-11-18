@@ -499,36 +499,39 @@ test(
           assert.ok(waiter.products.every((product) => product.recipe.length === 0));
         },
       );
-      await suite.test("cadastro completo cria vínculo e devolve sessão válida", async () => {
-        const email = `onboard-${suffix}@integration.test`;
-        const response = await onboardRestaurant(new Headers({ origin }), {
-          name: "Gestor cadastrado",
-          email,
-          password,
-          restaurantName: "Cadastro atômico",
-          slug: `onboard-${suffix}`,
-          plan: "teste",
-          serviceRateBps: 800,
-          reservationMinutes: 60,
-          deliveryFeeCents: 500,
-        });
-        const body = await response.json();
-        tenants.push(body.restaurantId);
-        const created = await getPool().query('SELECT id FROM "user" WHERE email=$1', [email]);
-        users.push(created.rows[0].id);
-        assert.equal(response.status, 201);
-        const onboardHeaders = new Headers({
-          origin,
-          cookie: response.headers
-            .getSetCookie()
-            .map((cookie) => cookie.split(";")[0])
-            .join("; "),
-        });
-        const snapshot = await getSnapshot(onboardHeaders);
-        assert.equal(snapshot.restaurant.id, body.restaurantId);
-        assert.equal(snapshot.actor.role, "gestor");
-        assert.equal(snapshot.restaurant.serviceRateBps, 800);
-      });
+      await suite.test(
+        "cadastro com taxa de serviço usa os padrões e devolve sessão válida",
+        async () => {
+          const email = `onboard-${suffix}@integration.test`;
+          const response = await onboardRestaurant(new Headers({ origin }), {
+            name: "Gestor cadastrado",
+            email,
+            password,
+            restaurantName: "Cadastro atômico",
+            slug: `onboard-${suffix}`,
+            plan: "teste",
+            serviceRateBps: 800,
+          });
+          const body = await response.json();
+          tenants.push(body.restaurantId);
+          const created = await getPool().query('SELECT id FROM "user" WHERE email=$1', [email]);
+          users.push(created.rows[0].id);
+          assert.equal(response.status, 201);
+          const onboardHeaders = new Headers({
+            origin,
+            cookie: response.headers
+              .getSetCookie()
+              .map((cookie) => cookie.split(";")[0])
+              .join("; "),
+          });
+          const snapshot = await getSnapshot(onboardHeaders);
+          assert.equal(snapshot.restaurant.id, body.restaurantId);
+          assert.equal(snapshot.actor.role, "gestor");
+          assert.equal(snapshot.restaurant.serviceRateBps, 800);
+          assert.equal(snapshot.restaurant.reservationMinutes, 90);
+          assert.equal(snapshot.restaurant.deliveryFeeCents, 0);
+        },
+      );
       await suite.test(
         "credencial provisória bloqueia operações até troca pelo titular",
         async () => {
