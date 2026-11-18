@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+.local-files
+.npm-cache
+test-results
+playwright-report
+coverage
+.vercel
+*.backup
+*.bundle
+*.log
