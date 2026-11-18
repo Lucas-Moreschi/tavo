@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.local-files/
+.npm-cache/
+test-results/
+playwright-report/
+coverage/
+package-lock.json
+next-env.d.ts
+AGENTS.md
+*.backup
+*.bundle
+*.log
