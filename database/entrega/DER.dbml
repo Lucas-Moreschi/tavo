@@ -1,0 +1,470 @@
+// Esquema físico do Tavo. Chaves e colunas extraídas do PostgreSQL.
+
+Project tavo {
+  database_type: 'PostgreSQL'
+}
+
+Table schema_migrations {
+  name text [pk, not null]
+  applied_at timestamptz [not null]
+}
+
+Table user {
+  id text [pk, not null]
+  name text [not null]
+  email text [not null, unique]
+  emailVerified boolean [not null]
+  image text
+  createdAt timestamptz [not null]
+  updatedAt timestamptz [not null]
+  credential_temporary boolean [not null]
+}
+
+Table session {
+  id text [pk, not null]
+  expiresAt timestamptz [not null]
+  token text [not null, unique]
+  createdAt timestamptz [not null]
+  updatedAt timestamptz [not null]
+  ipAddress text
+  userAgent text
+  userId text [not null]
+}
+
+Table account {
+  id text [pk, not null]
+  accountId text [not null]
+  providerId text [not null]
+  userId text [not null]
+  accessToken text
+  refreshToken text
+  idToken text
+  accessTokenExpiresAt timestamptz
+  refreshTokenExpiresAt timestamptz
+  scope text
+  password text
+  createdAt timestamptz [not null]
+  updatedAt timestamptz [not null]
+
+  indexes {
+    (providerId, accountId) [unique]
+  }
+}
+
+Table verification {
+  id text [pk, not null]
+  identifier text [not null]
+  value text [not null]
+  expiresAt timestamptz [not null]
+  createdAt timestamptz [not null]
+  updatedAt timestamptz [not null]
+}
+
+Table rateLimit {
+  id text [pk, not null]
+  key text [not null, unique]
+  count integer [not null]
+  lastRequest bigint [not null]
+}
+
+Table restaurants {
+  id text [pk, not null]
+  slug text [not null, unique]
+  body jsonb [not null]
+  version integer [not null]
+}
+
+Table memberships {
+  id text [pk, not null]
+  restaurant_id text [not null]
+  user_id text [not null]
+  role text [not null]
+  active boolean [not null]
+  must_change_password boolean [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (restaurant_id, id) [unique]
+    (restaurant_id, user_id) [unique]
+  }
+}
+
+Table invitations {
+  id text [pk, not null]
+  restaurant_id text [not null]
+  email text [not null]
+  role text [not null]
+  token_hash text [not null, unique]
+  expires_at timestamptz [not null]
+  accepted_at timestamptz
+  created_by text [not null]
+}
+
+Table operation_results {
+  restaurant_id text [not null]
+  operation_id text [not null]
+  user_id text [not null]
+  payload_hash text [not null]
+  result jsonb [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (restaurant_id, operation_id) [pk]
+  }
+}
+
+Table mail_outbox {
+  id bigint [pk, not null, increment]
+  recipient text [not null]
+  subject text [not null]
+  body text [not null]
+  created_at timestamptz [not null]
+}
+
+Table dining_tables {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table table_groups {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table visits {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  group_id text [note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table occupancies {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  table_id text [not null, note: 'Gerada de body']
+  visit_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table tabs {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  visit_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table categories {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table stock_items {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table products {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  category_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table cash_sessions {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table orders {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  visit_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table order_items {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  order_id text [note: 'Gerada de body']
+  tab_id text [not null, note: 'Gerada de body']
+  product_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table stock_movements {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  stock_item_id text [not null, note: 'Gerada de body']
+  item_id text [note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table payments {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  cash_session_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table refunds {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  payment_id text [not null, note: 'Gerada de body']
+  cash_session_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table cash_movements {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  cash_session_id text [not null, note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table reservations {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  visit_id text [note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table waitlist {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  visit_id text [note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table service_calls {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+  visit_id text [note: 'Gerada de body']
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table audit_events {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table suppliers {
+  restaurant_id text [not null]
+  id text [not null]
+  body jsonb [not null]
+
+  indexes {
+    (restaurant_id, id) [pk]
+  }
+}
+
+Table recipe_components {
+  restaurant_id text [not null]
+  product_id text [not null]
+  component_key text [not null]
+  stock_item_id text [not null]
+  quantity_milli bigint [not null]
+
+  indexes {
+    (restaurant_id, product_id, component_key) [pk]
+  }
+}
+
+Table item_recipe_components {
+  restaurant_id text [not null]
+  item_id text [not null]
+  component_key text [not null]
+  stock_item_id text [not null]
+  quantity_milli bigint [not null]
+
+  indexes {
+    (restaurant_id, item_id, component_key) [pk]
+  }
+}
+
+Table payment_allocations {
+  restaurant_id text [not null]
+  payment_id text [not null]
+  position integer [not null]
+  tab_id text [not null]
+  item_id text
+  amount_cents bigint [not null]
+
+  indexes {
+    (restaurant_id, payment_id, position) [pk]
+  }
+}
+
+Table refund_allocations {
+  restaurant_id text [not null]
+  refund_id text [not null]
+  position integer [not null]
+  tab_id text [not null]
+  item_id text
+  amount_cents bigint [not null]
+
+  indexes {
+    (restaurant_id, refund_id, position) [pk]
+  }
+}
+
+Table reservation_tables {
+  restaurant_id text [not null]
+  reservation_id text [not null]
+  table_id text [not null]
+
+  indexes {
+    (restaurant_id, reservation_id, table_id) [pk]
+  }
+}
+
+Table uploaded_files {
+  name text [pk, not null]
+  restaurant_id text [not null]
+  owner_id text [not null]
+  content_type text [not null]
+  created_at timestamptz [not null]
+  data bytea
+}
+
+Ref: account.userId > user.id [delete: cascade]
+Ref: audit_events.restaurant_id > restaurants.id
+Ref: cash_movements.(restaurant_id, cash_session_id) > cash_sessions.(restaurant_id, id)
+Ref: cash_movements.restaurant_id > restaurants.id
+Ref: cash_sessions.restaurant_id > restaurants.id
+Ref: categories.restaurant_id > restaurants.id
+Ref: dining_tables.restaurant_id > restaurants.id
+Ref: invitations.created_by > user.id
+Ref: invitations.restaurant_id > restaurants.id
+Ref: item_recipe_components.(restaurant_id, item_id) > order_items.(restaurant_id, id)
+Ref: item_recipe_components.(restaurant_id, stock_item_id) > stock_items.(restaurant_id, id)
+Ref: memberships.restaurant_id > restaurants.id
+Ref: memberships.user_id > user.id
+Ref: occupancies.restaurant_id > restaurants.id
+Ref: occupancies.(restaurant_id, table_id) > dining_tables.(restaurant_id, id)
+Ref: occupancies.(restaurant_id, visit_id) > visits.(restaurant_id, id)
+Ref: operation_results.restaurant_id > restaurants.id
+Ref: operation_results.user_id > user.id
+Ref: order_items.restaurant_id > restaurants.id
+Ref: order_items.(restaurant_id, order_id) > orders.(restaurant_id, id)
+Ref: order_items.(restaurant_id, product_id) > products.(restaurant_id, id)
+Ref: order_items.(restaurant_id, tab_id) > tabs.(restaurant_id, id)
+Ref: orders.restaurant_id > restaurants.id
+Ref: orders.(restaurant_id, visit_id) > visits.(restaurant_id, id)
+Ref: payment_allocations.(restaurant_id, item_id) > order_items.(restaurant_id, id)
+Ref: payment_allocations.(restaurant_id, payment_id) > payments.(restaurant_id, id)
+Ref: payment_allocations.(restaurant_id, tab_id) > tabs.(restaurant_id, id)
+Ref: payments.(restaurant_id, cash_session_id) > cash_sessions.(restaurant_id, id)
+Ref: payments.restaurant_id > restaurants.id
+Ref: products.(restaurant_id, category_id) > categories.(restaurant_id, id)
+Ref: products.restaurant_id > restaurants.id
+Ref: recipe_components.(restaurant_id, product_id) > products.(restaurant_id, id)
+Ref: recipe_components.(restaurant_id, stock_item_id) > stock_items.(restaurant_id, id)
+Ref: refund_allocations.(restaurant_id, item_id) > order_items.(restaurant_id, id)
+Ref: refund_allocations.(restaurant_id, refund_id) > refunds.(restaurant_id, id)
+Ref: refund_allocations.(restaurant_id, tab_id) > tabs.(restaurant_id, id)
+Ref: refunds.(restaurant_id, cash_session_id) > cash_sessions.(restaurant_id, id)
+Ref: refunds.restaurant_id > restaurants.id
+Ref: refunds.(restaurant_id, payment_id) > payments.(restaurant_id, id)
+Ref: reservation_tables.(restaurant_id, reservation_id) > reservations.(restaurant_id, id)
+Ref: reservation_tables.(restaurant_id, table_id) > dining_tables.(restaurant_id, id)
+Ref: reservations.restaurant_id > restaurants.id
+Ref: reservations.(restaurant_id, visit_id) > visits.(restaurant_id, id)
+Ref: service_calls.restaurant_id > restaurants.id
+Ref: service_calls.(restaurant_id, visit_id) > visits.(restaurant_id, id)
+Ref: session.userId > user.id [delete: cascade]
+Ref: stock_items.restaurant_id > restaurants.id
+Ref: stock_movements.restaurant_id > restaurants.id
+Ref: stock_movements.(restaurant_id, item_id) > order_items.(restaurant_id, id)
+Ref: stock_movements.(restaurant_id, stock_item_id) > stock_items.(restaurant_id, id)
+Ref: suppliers.restaurant_id > restaurants.id
+Ref: table_groups.restaurant_id > restaurants.id
+Ref: tabs.restaurant_id > restaurants.id
+Ref: tabs.(restaurant_id, visit_id) > visits.(restaurant_id, id)
+Ref: uploaded_files.owner_id > user.id
+Ref: uploaded_files.restaurant_id > restaurants.id
+Ref: visits.restaurant_id > restaurants.id
+Ref: visits.(restaurant_id, group_id) > table_groups.(restaurant_id, id)
+Ref: waitlist.restaurant_id > restaurants.id
+Ref: waitlist.(restaurant_id, visit_id) > visits.(restaurant_id, id)

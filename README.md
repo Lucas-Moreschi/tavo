@@ -49,6 +49,7 @@ src/
   shared/              Componentes, hooks, tipos e utilitários reutilizáveis
   styles/              Tema global e controles compartilhados
 database/migrations/   Evolução do esquema PostgreSQL
+database/entrega/      Dados SQL, consultas e DER para a entrega acadêmica
 scripts/database/      Migrações e carga opcional de apresentação
 scripts/development/   Ferramentas locais de desenvolvimento
 tests/                 Testes unitários, de integração e navegador
@@ -57,6 +58,23 @@ docs/                  Documentação técnica atual
 ```
 
 Detalhes em [Arquitetura](docs/ARCHITECTURE.md), [API](docs/API.md) e [Design](docs/DESIGN.md).
+
+## Entrega SQL e DER
+
+| Requisito                            | Arquivo                                                                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `CREATE TABLE`                       | [Migrações SQL](database/migrations) e definição de `schema_migrations` em [dados.sql](database/entrega/dados.sql)              |
+| Três `INSERT`s por tabela            | [dados.sql](database/entrega/dados.sql), com 111 comandos para 37 tabelas                                                       |
+| `SELECT` de cada tabela e com `JOIN` | [consultas.sql](database/entrega/consultas.sql), com 37 consultas individuais e quatro relacionais                              |
+| DER físico                           | [Imagem SVG](database/entrega/DER.svg), [arquivo DBML](database/entrega/DER.dbml) e [modelo comentado](database/entrega/DER.md) |
+
+Configure `DATABASE_URL` no `.env` ou no terminal com a conexão de homologação. O usuário do PostgreSQL precisa de permissão para criar um esquema no banco.
+
+```bash
+npm run db:entrega
+```
+
+O comando aplica as migrações no esquema `tavo_entrega`, insere os dados fictícios, valida as referências e imprime as consultas. Toda a demonstração roda em uma transação que termina com `ROLLBACK`. A tabela `schema_migrations` usa três comandos para registrar os cinco arquivos de migração. Cada outra tabela recebe três linhas.
 
 ## Dados e segurança
 

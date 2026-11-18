@@ -9,6 +9,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "tsx --test tests/unit/*.test.ts",
     "db:migrate": "tsx scripts/database/migrate.ts",
+    "db:entrega": "node --env-file-if-exists=.env scripts/database/entrega.mjs",
     "db:seed": "tsx scripts/database/seed.ts",
     "test:integration": "tsx --test tests/integration/*.test.ts",
     "test:e2e": "playwright test",
