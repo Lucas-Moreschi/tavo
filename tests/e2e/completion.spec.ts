@@ -69,7 +69,27 @@ test("conta de grupo: prévias, divisão, impressão, separação e encerramento
   await expect(dialog.locator(".account-totals")).toContainText("10,00");
   await dialog.getByRole("button", { name: "Confirmar agrupamento" }).click();
   await expect(dialog).not.toBeVisible();
-  await page.goto(`/?view=mesas&visit=${visit1}`);
+  const groupCard = page.getByRole("region", { name: "Grupo QA", exact: true });
+  const firstTable = groupCard.getByRole("button", { name: /Mesa 01/ });
+  const secondTable = groupCard.getByRole("button", { name: /Mesa 02/ });
+  await expect(groupCard.getByText("Mesas 01 + 02", { exact: true })).toBeVisible();
+  await expect(groupCard.getByText("Conta única", { exact: true })).toBeVisible();
+  await expect(firstTable).toBeVisible();
+  await expect(secondTable).toBeVisible();
+  const search = page.getByPlaceholder("Buscar número da mesa");
+  await search.fill("2");
+  await expect(firstTable).toHaveCount(0);
+  await expect(secondTable).toBeVisible();
+  await expect(groupCard.getByText("Mesas 01 + 02", { exact: true })).toBeVisible();
+  await search.clear();
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expect
+      .poll(() => groupCard.evaluate((card) => card.getBoundingClientRect().right <= innerWidth))
+      .toBe(true);
+  }
+  await firstTable.click();
+  await expect(page).toHaveURL(`/?view=mesas&visit=${visit1}`);
   await expect(page.getByRole("button", { name: "Conta do grupo", exact: true })).toHaveClass(
     /active/,
   );
@@ -129,6 +149,8 @@ test("conta de grupo: prévias, divisão, impressão, separação e encerramento
   let current = await snapshot(request);
   expect(current.payments).toHaveLength(2);
   expect(current.visits.every((visit) => !visit.groupId)).toBe(true);
+  await page.goto("/?view=mesas");
+  await expect(groupCard).toHaveCount(0);
   const groupId = (
     await command(request, "group.join", {
       tableIds: [table1, table2],

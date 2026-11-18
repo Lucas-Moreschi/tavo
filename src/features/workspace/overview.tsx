@@ -26,6 +26,8 @@ import { TableCard } from "@/features/service/table-card";
 export function Overview(props: ViewProps) {
   const { fullDate, shortDate, shortTime } = operationDates(props.state.restaurant.timezone);
   const { state, navigate, inspect } = props;
+  const canSeeReports = ["gestor", "caixa"].includes(state.actor.role);
+  const canFollowProduction = ["gestor", "garcom"].includes(state.actor.role);
   const visits = state.visits.filter((visit) => !visit.closedAt);
   const occupied = state.occupancies.filter((occupancy) => !occupancy.releasedAt);
   const activeTabs = state.tabs.filter((tab) => tab.status === "aberta");
@@ -56,10 +58,12 @@ export function Overview(props: ViewProps) {
         title={`Tudo pronto, ${lastName}?`}
         description="Acompanhe o que acontece agora e cuide do que mais importa."
       >
-        <button className="btn btn-secondary" onClick={() => navigate("relatorios")}>
-          <ChartIcon />
-          Ver relatórios
-        </button>
+        {canSeeReports && (
+          <button className="btn btn-secondary" onClick={() => navigate("relatorios")}>
+            <ChartIcon />
+            Ver relatórios
+          </button>
+        )}
         {["gestor", "garcom"].includes(state.actor.role) && (
           <button
             className="btn btn-primary"
@@ -217,8 +221,12 @@ export function Overview(props: ViewProps) {
               <h2>Últimos pedidos</h2>
               <p>Da comanda para a cozinha, sem perder o ritmo.</p>
             </div>
-            <button className="text-button" onClick={() => navigate("producao")}>
-              Acompanhar produção <ArrowUpRight size={15} />
+            <button
+              className="text-button"
+              onClick={() => navigate(canFollowProduction ? "producao" : "comandas")}
+            >
+              {canFollowProduction ? "Acompanhar produção" : "Ver comandas"}{" "}
+              <ArrowUpRight size={15} />
             </button>
           </div>
           {recentItems.length ? (

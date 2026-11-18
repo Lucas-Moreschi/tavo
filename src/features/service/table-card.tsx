@@ -1,11 +1,10 @@
 "use client";
 
 import { Clock3, Plus, Users } from "lucide-react";
-import { money, quantity } from "@/shared/lib/format";
+import { money } from "@/shared/lib/format";
 import { elapsed, tabTotals } from "@/shared/lib/operation-utils";
 import type { ViewProps } from "@/shared/types/operation";
 import { openVisit } from "@/features/service/open-visit";
-import { number } from "@/shared/ui/form-fields";
 
 export function TableCard(props: ViewProps & { tableId: string; compact?: boolean }) {
   const { state, tableId, compact } = props;
@@ -42,7 +41,7 @@ export function TableCard(props: ViewProps & { tableId: string; compact?: boolea
         <span>
           <Users size={13} />
           {visit ? `${visit.people} pessoas` : `${table.capacity} lugares`}
-          {visit?.groupId && " · Agrupada"}
+          {compact && visit?.groupId && " · Agrupada"}
         </span>
       </div>
       <div className="table-card-bottom">

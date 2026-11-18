@@ -263,11 +263,9 @@ export function TavoApp() {
             >
               <Menu size={22} />
             </button>
-            <span className="desktop-only">Workspace</span>
-            <ChevronRight size={14} className="desktop-only" />
             <strong>
               {visitId
-                ? "Detalhe do atendimento"
+                ? "Atendimento"
                 : active?.label || (safeView === "perfil" ? "Meu perfil" : "Central de chamados")}
             </strong>
           </div>
@@ -280,10 +278,12 @@ export function TavoApp() {
                 timeZone: snapshot.restaurant.timezone,
               })}
             </span>
-            <span className={`cash-status ${currentCash ? "" : "cash-closed"}`}>
-              <span className="status-dot" />
-              {currentCash ? "Caixa aberto" : "Caixa fechado"}
-            </span>
+            {allowed.some((item) => item.id === "caixa") && (
+              <span className={`cash-status ${currentCash ? "" : "cash-closed"}`}>
+                <span className="status-dot" />
+                {currentCash ? "Caixa aberto" : "Caixa fechado"}
+              </span>
+            )}
             <button
               className="btn btn-secondary btn-small header-help"
               aria-haspopup="dialog"
