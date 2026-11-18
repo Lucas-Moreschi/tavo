@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  /><meta name="theme-color" content="#111111" /><title>TAVO · Sem conexão</title
+  ><style>
+    body {
+      margin: 0;
+      background: #101010;
+      color: #f5f2ee;
+      font: 16px system-ui;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+    }
+    main {
+      max-width: 420px;
+      padding: 32px;
+    }
+    strong {
+      color: #ff782f;
+      letter-spacing: 0.2em;
+      font-size: 32px;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    p {
+      color: #a19b95;
+      line-height: 1.7;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      background: #ff782f;
+      color: #17110d;
+      padding: 14px 20px;
+      font: 600 16px system-ui;
+      cursor: pointer;
+    }
+  </style>
+  <main>
+    <strong>TAVO</strong>
+    <h1>Vamos reconectar?</h1>
+    <p>
+      Você está sem conexão. Pedidos e recebimentos precisam do servidor para serem registrados com
+      segurança.
+    </p>
+    <button onclick="location.reload()">Tentar novamente</button>
+  </main>
+</html>
