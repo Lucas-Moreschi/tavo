@@ -44,7 +44,7 @@ export function Modal({
     dialog?.showModal();
     return () => {
       dialog?.close();
-      prior?.focus();
+      prior?.focus({ preventScroll: true });
     };
   }, []);
   return (

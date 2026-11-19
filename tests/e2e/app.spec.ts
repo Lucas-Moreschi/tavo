@@ -162,6 +162,54 @@ test("interface responsiva, sessão persistente, permissões e bloqueio offline"
   expect(errors).toEqual([]);
 });
 
+test("sidebar e janelas modais isolam a rolagem da página", async ({ page, accounts }) => {
+  await accounts.create(page.request);
+  await page.setViewportSize({ width: 1440, height: 640 });
+  await page.goto("/");
+
+  const scrollPosition = () =>
+    page.evaluate(
+      () =>
+        new Promise<number>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve(window.scrollY))),
+        ),
+    );
+
+  const sidebar = page.getByRole("navigation", { name: "Navegação principal" });
+  await sidebar.hover();
+  await page.mouse.wheel(0, 1200);
+  await expect
+    .poll(() =>
+      sidebar.evaluate(
+        (nav) => nav.scrollTop > 0 && nav.scrollHeight - nav.clientHeight - nav.scrollTop < 1,
+      ),
+    )
+    .toBe(true);
+  await page.mouse.wheel(0, 400);
+  expect(await scrollPosition()).toBe(0);
+  await page.locator(".sidebar-brand").hover();
+  await page.mouse.wheel(0, 400);
+  expect(await scrollPosition()).toBe(0);
+
+  const help = page.getByRole("button", { name: "Ajuda", exact: true });
+  await help.click();
+  const dialog = page.getByRole("dialog", { name: "Guia de operação" });
+  await dialog.hover({ position: { x: 80, y: 200 } });
+  await page.mouse.wheel(0, 1200);
+  await expect.poll(() => dialog.evaluate((node) => node.scrollTop)).toBeGreaterThan(0);
+  expect(await scrollPosition()).toBe(0);
+
+  await page.mouse.move(1350, 560);
+  await page.mouse.wheel(0, 400);
+  expect(await scrollPosition()).toBe(0);
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(help).toBeFocused();
+  await page.mouse.wheel(0, 400);
+  await expect.poll(scrollPosition).toBeGreaterThan(0);
+});
+
 test("formulários reais abrem mesa, adicionam opções, enviam e recuperam resposta perdida", async ({
   page,
   accounts,

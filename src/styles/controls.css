@@ -12,6 +12,12 @@
     --shadow-control: 0 1px 2px #0004, inset 0 1px 0 #ffffff09;
     --shadow-raised: 0 12px 32px #0003, inset 0 1px 0 #ffffff08;
   }
+  html:has(.application) {
+    scrollbar-gutter: stable;
+  }
+  html:has(.modal[open]) {
+    overflow: hidden;
+  }
 
   body {
     font-size: var(--text-base);
@@ -48,6 +54,8 @@
 
   .sidebar {
     width: var(--sidebar-width);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
     padding: 32px 20px 0;
   }
   .app-body {
@@ -869,6 +877,7 @@
     width: min(760px, calc(100vw - 48px));
     max-width: none;
     max-height: calc(100dvh - 64px);
+    overscroll-behavior-y: contain;
     border-radius: 24px;
     box-shadow:
       0 32px 100px #0009,
