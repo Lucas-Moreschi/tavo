@@ -17,6 +17,7 @@ test("conta de grupo: prévias, divisão, impressão, separação e encerramento
   const table2 = (
     await command(request, "table.save", { number: 2, capacity: 4, sector: "Salão", active: true })
   ).result.entityId;
+  await command(request, "table.save", { number: 3, capacity: 4, sector: "Salão", active: true });
   const categoryId = (await command(request, "category.save", { name: "Bebidas", active: true }))
     .result.entityId;
   const productId = (
@@ -88,6 +89,12 @@ test("conta de grupo: prévias, divisão, impressão, separação e encerramento
       .poll(() => groupCard.evaluate((card) => card.getBoundingClientRect().right <= innerWidth))
       .toBe(true);
   }
+  const freeTable = page.getByRole("button", { name: /Mesa 03/ });
+  await expect(freeTable).toBeVisible();
+  const groupHeight = await groupCard.evaluate((card) => card.getBoundingClientRect().height);
+  await expect
+    .poll(() => freeTable.evaluate((card) => card.getBoundingClientRect().height))
+    .toBeCloseTo(groupHeight, 0);
   await firstTable.click();
   await expect(page).toHaveURL(`/?view=mesas&visit=${visit1}`);
   await expect(page.getByRole("button", { name: "Conta do grupo", exact: true })).toHaveClass(
